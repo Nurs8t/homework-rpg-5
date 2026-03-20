@@ -3,7 +3,6 @@ package com.narxoz.rpg.facade;
 import com.narxoz.rpg.decorator.AttackAction;
 import com.narxoz.rpg.enemy.BossEnemy;
 import com.narxoz.rpg.hero.HeroProfile;
-
 import java.util.Random;
 
 public class BattleService {
@@ -15,22 +14,52 @@ public class BattleService {
     }
 
     public AdventureResult battle(HeroProfile hero, BossEnemy boss, AttackAction action) {
-        // TODO: Implement the battle flow.
-        // Questions to answer:
-        // - Who attacks first?
-        // - How many rounds are allowed?
-        // - How is damage resolved?
-        // - How will randomness affect the result, if at all?
         AdventureResult result = new AdventureResult();
-        result.setWinner("TODO");
-        result.setRounds(0);
-        result.setReward("TODO");
-        result.addLine("TODO: implement battle logic");
+        int round = 0;
+        boolean heroFirst = random.nextBoolean();
 
-        // Keep the field in use so students can decide whether to rely on it.
-        if (random.nextInt(1) == 0) {
-            // TODO: Replace placeholder branch with real deterministic or random logic.
+        while (hero.isAlive() && boss.isAlive() && round < 12) {
+
+            round++;
+
+            if (heroFirst) {
+
+                int damageFromHero = action.getDamage();
+                boss.takeDamage(damageFromHero);
+                result.addLine("Hero hits the boss for " + damageFromHero + " damage");
+
+                if (!boss.isAlive()) {
+                    break;
+                }
+
+                int damageFromBoss = boss.getAttackPower();
+                hero.takeDamage(damageFromBoss);
+                result.addLine("Boss hits the hero for " + damageFromBoss + " damage");
+
+            } else {
+
+                int damageFromBoss = boss.getAttackPower();
+                hero.takeDamage(damageFromBoss);
+                result.addLine("Boss hits the hero for " + damageFromBoss + " damage");
+
+                if (!hero.isAlive()) {
+                    break;
+                }
+
+                int damageFromHero = action.getDamage();
+                boss.takeDamage(damageFromHero);
+                result.addLine("Hero hits the boss for " + damageFromHero + " damage");
+            }
         }
+
+        result.setRounds(round);
+
+        if (boss.isAlive()) {
+            result.setWinner("Boss");
+        } else {
+            result.setWinner("Hero");
+        }
+
 
         return result;
     }
